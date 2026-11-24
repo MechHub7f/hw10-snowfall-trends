@@ -5,6 +5,9 @@ data/
 *.parquet
 *.zip
 
+# generated report
+docs/
+
 # Python
 __pycache__/
 *.pyc

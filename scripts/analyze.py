@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Turn the station-season file into a regional analysis and a static report."""
+"""Turn the station-season file into the regional results used by the report."""
 
 import csv
 import json
@@ -9,8 +9,6 @@ from datetime import date
 from pathlib import Path
 
 INPUT = Path("data/processed/station_seasonal.csv")
-TEMPLATE = Path("scripts/report_template.html")
-OUTPUT = Path("docs/index.html")
 RESULTS = Path("data/results.json")
 
 OLD = (1940, 1999)
@@ -321,12 +319,7 @@ def main():
     RESULTS.parent.mkdir(parents=True, exist_ok=True)
     RESULTS.write_text(json.dumps(results, indent=2), encoding="utf-8")
 
-    html = TEMPLATE.read_text(encoding="utf-8")
-    html = html.replace("__DATA__", json.dumps(results))
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(html, encoding="utf-8")
-
-    print(f"Saved {RESULTS} and {OUTPUT}")
+    print(f"Saved {RESULTS}")
     for item in summary:
         print(
             f"{item['label']}: {item['old']:.1f} -> {item['new']:.1f} "

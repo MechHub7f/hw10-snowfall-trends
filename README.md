@@ -29,32 +29,30 @@ meant the whole 60 years, the numbers don't back that up.
 
 - `scripts/fetch_data.py` downloads the GHCN station files and builds a small
   station-by-winter table.
-- `scripts/analyze.py` computes the regional numbers and writes the report.
-- `scripts/report_template.html` is the report template, with Chart.js charts.
-- `docs/index.html` is the generated static report served by GitHub Pages.
-- `Makefile` runs the two steps in order.
+- `scripts/analyze.py` computes the regional numbers and writes
+  `data/results.json`.
+- `scripts/build_report.py` turns those results into the report page, with
+  inline SVG charts. No JavaScript and no chart library.
+- `.github/workflows/pages.yml` runs the three scripts and deploys the page to
+  GitHub Pages.
+- `docs/index.html` is the generated report page. It is gitignored because the
+  workflow rebuilds it.
 
 ## Running it
 
 ```sh
-make all
-```
-
-or:
-
-```sh
 python3 scripts/fetch_data.py
 python3 scripts/analyze.py
+python3 scripts/build_report.py
 ```
 
-The download step uses NOAA's GHCN-Daily S3 mirror. It writes
-`data/processed/station_seasonal.csv`, which is gitignored. The analysis writes
-`docs/index.html` and `data/results.json`. Raw station files and processed data
-are not committed to the repo.
+Then open `docs/index.html`. The download step uses NOAA's GHCN-Daily S3
+mirror. Raw station files, `data/processed/station_seasonal.csv`, and the
+generated page are not committed.
 
 ## Data and method
 
-- Source: NOAA GHCN-Daily.
+- Source: NOAA's GHCN-Daily.
 - States: Maine, New Hampshire, Vermont, Massachusetts, Rhode Island,
   Connecticut.
 - Periods: winters 1940-41 through 1999-2000, and 2000-01 through 2019-20.
