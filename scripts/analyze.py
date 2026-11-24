@@ -283,7 +283,7 @@ def main():
             )
 
     sensitivity = []
-    for threshold in (0.70, 0.80, 0.90):
+    for threshold in (0.70, 0.90):
         for metric in METRICS:
             stations = eligible_stations(data, meta, metric, threshold=threshold)
             stats = compute(

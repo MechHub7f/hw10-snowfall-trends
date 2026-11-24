@@ -21,9 +21,9 @@ The 2000s and 2010s came back to about normal. Mean snow depth was about 8%
 lower recently, but that difference is small and not statistically
 significant.
 
-So the data do not back up the idea that New England snowfall has been
-disappearing. If he was remembering the 1960s and 1970s, he had a point. If he
-meant the whole 60 years, the numbers don't back that up.
+The data do not show New England snowfall disappearing. If he was remembering
+the 1960s and 1970s, he had a point. If he meant the whole 60 years, the
+numbers say otherwise.
 
 ## What is in here
 
@@ -47,8 +47,8 @@ python3 scripts/build_report.py
 ```
 
 Then open `docs/index.html`. The download step uses NOAA's GHCN-Daily S3
-mirror. Raw station files, `data/processed/station_seasonal.csv`, and the
-generated page are not committed.
+mirror. Raw station files, `data/processed/station_seasonal.csv`,
+`data/results.json`, and the generated page are not committed.
 
 ## Data and method
 

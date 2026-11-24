@@ -26,6 +26,10 @@ def tick_label(value):
 
 
 def line_chart(series, y_label, width=720, height=320, color="#3f6491"):
+    if not series:
+        return '<p class="note">No data for this chart.</p>'
+    if len(series) < 2:
+        return '<p class="note">Not enough data for this chart.</p>'
     years = [item["season"] for item in series]
     values = [item["anomaly"] for item in series]
     x_min, x_max = min(years), max(years)
@@ -105,27 +109,30 @@ def line_chart(series, y_label, width=720, height=320, color="#3f6491"):
         )
 
     averages = []
-    for index, item in enumerate(series):
-        chunk = series[max(0, index - 9):index + 1]
+    for index in range(9, len(series)):
+        chunk = series[index - 9:index + 1]
         averages.append(
             (
-                item["season"],
-                sum(entry["anomaly"] for entry in chunk) / len(chunk),
+                series[index]["season"],
+                sum(entry["anomaly"] for entry in chunk) / 10,
             )
         )
-    average_points = " ".join(
-        f"{x(year):.1f},{y(value):.1f}" for year, value in averages
-    )
-    parts.append(
-        f'<polyline fill="none" stroke="#222" stroke-width="2.2" '
-        f'points="{average_points}"/>'
-    )
+    if averages:
+        average_points = " ".join(
+            f"{x(year):.1f},{y(value):.1f}" for year, value in averages
+        )
+        parts.append(
+            f'<polyline fill="none" stroke="#222" stroke-width="2.2" '
+            f'points="{average_points}"/>'
+        )
 
     parts.append("</svg>")
     return "".join(parts)
 
 
 def bar_chart(data, y_label, width=720, height=320):
+    if not data:
+        return '<p class="note">No data for this chart.</p>'
     values = [item["anomaly"] for item in data]
     y_min, y_max = min(0, min(values)), max(0, max(values))
     padding = (y_max - y_min) * 0.10 or 1
@@ -239,17 +246,27 @@ def sensitivity_table(sensitivity):
 
 def build_page(results):
     by_key = {item["key"]: item for item in results["summary"]}
+    if "snow_total_in" not in by_key or not results["series"].get("snow_total_in"):
+        raise SystemExit("No snowfall results. Run fetch_data.py and analyze.py first.")
     snow = by_key["snow_total_in"]
     depth = by_key.get("snwd_mean_in")
 
     snow_chart = line_chart(results["series"]["snow_total_in"], "Snowfall anomaly (inches)")
-    decade_chart = bar_chart(
-        results["decadal"]["snow_total_in"], "Snowfall anomaly (inches)"
+    decade_data = results["decadal"].get("snow_total_in")
+    decade_chart = (
+        bar_chart(decade_data, "Snowfall anomaly (inches)")
+        if decade_data
+        else '<p class="note">No decadal data for this chart.</p>'
     )
-    cover_chart = line_chart(
-        results["series"]["cover_days"],
-        "Snow-cover anomaly (days)",
-        color="#5d7f5a",
+    cover_series = results["series"].get("cover_days")
+    cover_chart = (
+        line_chart(
+            cover_series,
+            "Snow-cover anomaly (days)",
+            color="#5d7f5a",
+        )
+        if cover_series
+        else '<p class="note">No snow-cover data for this chart.</p>'
     )
 
     station_note = (
@@ -263,7 +280,6 @@ def build_page(results):
       --muted: #666;
       --rule: #ddd;
       --blue: #3f6491;
-      --red: #a95845;
     }
     * { box-sizing: border-box; }
     body {
@@ -422,8 +438,8 @@ def build_page(results):
       That is a change of <strong>{signed(snow['change'])} in</strong>
       ({signed(snow['pct'])}%). The 95% bootstrap range for the recent anomaly is
       <strong>{signed(snow['ci_low'])} to {signed(snow['ci_high'])} in</strong>,
-      and a permutation test gives p = <strong>{snow['p']:.3f}</strong>. So the
-      recent average isn't really lower.
+      and a permutation test gives p = <strong>{snow['p']:.3f}</strong>. The
+      difference is small enough to be noise.
     </p>
     <div class="stats">
       <div><span class="stat-label">1940&ndash;1999</span><span class="stat-value">{fmt(snow['old'])} in</span></div>
@@ -476,8 +492,8 @@ def build_page(results):
     <div class="chart">{decade_chart}</div>
     <p class="caption">
       This is where the memory comes from. The 1960s and 1970s were well above
-      average. The 1980s and 1990s were below it. The 2000s and 2010s landed
-      close to the long-run average.
+      average, the 1980s and 1990s below it, and the 2000s and 2010s back
+      around normal.
     </p>
   </section>
 
@@ -493,7 +509,8 @@ def build_page(results):
       Snow depth is a different measure. The chart shows snow-cover days; the
       table below also includes average snow depth. Snow depth was slightly
       lower recently, but cover days were basically flat. Either way, the change
-      is small and the uncertainty is large. It is a hint, not a clean trend.
+      is small and the uncertainty is large. That hints at a decline, but I
+      would not call it a trend.
     </p>
   </section>
 
@@ -507,7 +524,7 @@ def build_page(results):
             <th>1940&ndash;1999</th>
             <th>2000&ndash;2019</th>
             <th>Change</th>
-            <th>95% range</th>
+            <th>95% range (anomaly)</th>
             <th>p</th>
             <th>Trend / decade</th>
           </tr>
@@ -518,9 +535,9 @@ def build_page(results):
     <p class="note">
       Positive changes mean more snow or more days in 2000&ndash;2019. The change
       column is the difference between the station averages. The 95% range and
-      p-value come from the regional winter index, so they estimate the same
-      shift in a slightly different way. The trend is a straight line through
-      the whole record, so it is sensitive to the very snowy 1960s and 1970s.
+      p-value are for the regional winter anomaly, not a confidence interval
+      for the station-mean change. The trend is a straight line through the
+      whole record, so it is sensitive to the very snowy 1960s and 1970s.
     </p>
   </section>
 
@@ -576,9 +593,9 @@ def build_page(results):
       average.
     </p>
     <p>
-      So the headline is no: New England did not get less snow, at least not in
-      the seasonal totals. The snowpack is a slightly different story, but the
-      data are not strong enough to say the region lost much snow depth either.
+      The short answer is still no: New England did not get less snow, at least
+      not in the seasonal totals. Snow depth may be inching down, but the data
+      are too weak to call it a loss.
     </p>
   </section>
 

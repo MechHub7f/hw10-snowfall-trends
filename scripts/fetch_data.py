@@ -31,13 +31,7 @@ def read_stations():
         for line in io.TextIOWrapper(response, encoding="utf-8"):
             state = line[38:40]
             if state in STATES:
-                sid = line[0:11]
-                stations[sid] = {
-                    "state": state,
-                    "lat": float(line[12:20]),
-                    "lon": float(line[21:30]),
-                    "name": line[41:71].strip(),
-                }
+                stations[line[0:11]] = {"state": state}
     return stations
 
 
@@ -127,9 +121,6 @@ def main():
     fields = [
         "station",
         "state",
-        "name",
-        "lat",
-        "lon",
         "season",
         "snow_total_in",
         "snow_days",
@@ -157,9 +148,6 @@ def main():
                     {
                         "station": sid,
                         "state": meta["state"],
-                        "name": meta["name"],
-                        "lat": meta["lat"],
-                        "lon": meta["lon"],
                         "season": season,
                         "snow_total_in": round(record["snow_total"] / 25.4, 2)
                         if record["snow_n"]
