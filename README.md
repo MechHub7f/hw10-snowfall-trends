@@ -7,23 +7,23 @@ Live report: https://mechhub7f.github.io/hw10-snowfall-trends/
 My uncle used to say winters were not what they used to be. He was born in
 1939 and died in 2024, so he saw a lot of New England winters. I used daily
 snowfall records from the Global Historical Climatology Network to compare the
-first two decades of the 21st century with the last six decades of the 20th.
+2000s and 2010s with 1940-1999.
 
 ## What I found
 
 - 1940-1999 average seasonal snowfall: **72.1 inches**
-- 2000-2019 average: **73.1 inches**
-- Change: **+1.0 inch (+1.4%)**
+- 2000-2019 average: **73.4 inches**
+- Change: **+1.3 inches (+1.8%)**
 - Permutation test: **p = 0.82**
 
-The 1960s and 1970s were well above average. The 1980s and 1990s were below it.
-The 2000s and 2010s landed close to the long-run average. Mean snow depth was
-about 8% lower recently, but that difference is small and not statistically
-meaningful.
+The '60s and '70s ran well above average and the '80s and '90s ran below it.
+The 2000s and 2010s came back to about normal. Mean snow depth was about 8%
+lower recently, but that difference is small and not statistically
+significant.
 
 So the data do not back up the idea that New England snowfall has been
 disappearing. If he was remembering the 1960s and 1970s, he had a point. If he
-meant the whole second half of the 20th century, the comparison does not hold.
+meant the whole 60 years, the numbers don't back that up.
 
 ## What is in here
 

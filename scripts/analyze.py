@@ -4,7 +4,7 @@
 import csv
 import json
 import random
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import date
 from pathlib import Path
 
@@ -135,7 +135,7 @@ def trend_per_decade(series):
     return slope * 10
 
 
-def compute(data, meta, metric, stations, threshold=COVERAGE, seed=0):
+def compute(data, metric, stations, threshold=COVERAGE):
     if len(stations) < 5:
         return None
 
@@ -178,10 +178,7 @@ def compute(data, meta, metric, stations, threshold=COVERAGE, seed=0):
         return None
 
     old_mean = mean(baseline.values())
-    change = mean(recent_values)
-    new_mean = old_mean + change
-    ci_low, ci_high = bootstrap_ci(recent_values, seed + 1)
-
+    station_recent = {}
     below = 0
     for sid in stations:
         recent = [
@@ -191,8 +188,16 @@ def compute(data, meta, metric, stations, threshold=COVERAGE, seed=0):
             and data[sid][season][metric["key"]] is not None
             and data[sid][season][metric["cov"]] >= threshold
         ]
-        if recent and sid in baseline and mean(recent) < baseline[sid]:
-            below += 1
+        if recent and sid in baseline:
+            station_recent[sid] = mean(recent)
+            if station_recent[sid] < baseline[sid]:
+                below += 1
+    if not station_recent:
+        return None
+
+    new_mean = mean(station_recent.values())
+    change = new_mean - old_mean
+    ci_low, ci_high = bootstrap_ci(recent_values, 1)
 
     return {
         "n": len(stations),
@@ -202,15 +207,11 @@ def compute(data, meta, metric, stations, threshold=COVERAGE, seed=0):
         "pct": 100 * change / old_mean if old_mean else 0.0,
         "ci_low": ci_low,
         "ci_high": ci_high,
-        "p": permutation_p(old_values, recent_values, seed + 2),
+        "p": permutation_p(old_values, recent_values, 2),
         "trend": trend_per_decade(series),
         "below": below,
         "series": [
-            {
-                "season": item["season"],
-                "anomaly": round(item["anomaly"], 2),
-                "n": item["n"],
-            }
+            {"season": item["season"], "anomaly": round(item["anomaly"], 2)}
             for item in series
         ],
     }
@@ -226,11 +227,7 @@ def decadal_means(series):
         ]
         if values:
             output.append(
-                {
-                    "decade": f"{decade}s",
-                    "anomaly": round(mean(values), 2),
-                    "n": len(values),
-                }
+                {"decade": f"{decade}s", "anomaly": round(mean(values), 2)}
             )
     return output
 
@@ -253,14 +250,13 @@ def round_stats(stats):
 def main():
     data, meta = load_data()
 
-    state_counts = Counter(item["state"] for item in meta.values())
     summary = []
     series = {}
     decadal = {}
 
-    for index, metric in enumerate(METRICS):
+    for metric in METRICS:
         stations = eligible_stations(data, meta, metric)
-        stats = compute(data, meta, metric, stations, seed=index * 100)
+        stats = compute(data, metric, stations)
         if stats is None:
             continue
         summary.append(
@@ -275,45 +271,38 @@ def main():
         decadal[metric["key"]] = decadal_means(stats["series"])
 
     subregions = []
-    for index, metric in enumerate(METRICS):
+    for metric in METRICS:
         for region_name, states in REGIONS:
             stations = eligible_stations(data, meta, metric, region=states)
-            stats = compute(
-                data,
-                meta,
-                metric,
-                stations,
-                seed=1000 + index * 100 + len(region_name),
-            )
+            stats = compute(data, metric, stations)
             if stats is None:
                 continue
             subregions.append(
                 {
-                    "key": metric["key"],
                     "label": metric["label"],
                     "unit": metric["unit"],
                     "region": region_name,
-                    **round_stats(stats),
+                    "n": stats["n"],
+                    "change": round(stats["change"], 2),
+                    "pct": round(stats["pct"], 1),
+                    "p": round(stats["p"], 3),
                 }
             )
 
     sensitivity = []
     for threshold in (0.70, 0.80, 0.90):
-        for index, metric in enumerate(METRICS):
+        for metric in METRICS:
             stations = eligible_stations(data, meta, metric, threshold=threshold)
             stats = compute(
                 data,
-                meta,
                 metric,
                 stations,
                 threshold=threshold,
-                seed=2000 + index * 100 + int(threshold * 100),
             )
             if stats is None:
                 continue
             sensitivity.append(
                 {
-                    "key": metric["key"],
                     "label": metric["label"],
                     "unit": metric["unit"],
                     "threshold": threshold,
@@ -326,12 +315,7 @@ def main():
 
     results = {
         "generated": date.today().isoformat(),
-        "periods": {"old": OLD, "new": NEW},
-        "coverage": COVERAGE,
-        "counts": {
-            "stations": len(meta),
-            "by_state": dict(sorted(state_counts.items())),
-        },
+        "stations": len(meta),
         "summary": summary,
         "series": series,
         "decadal": decadal,

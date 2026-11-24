@@ -96,16 +96,17 @@ def process_station(sid):
             day = row["DATE"]
             year = int(day[0:4])
             month = int(day[4:6])
-            season = year if month >= 7 else year - 1
+            if month < 10 and month > 5:
+                continue
+            season = year if month >= 10 else year - 1
             record = seasons[season]
 
             if element == "SNOW":
                 record["snow_total"] += value
-                if month >= 10 or month <= 5:
-                    record["snow_n"] += 1
-                    if value > 0:
-                        record["snow_days"] += 1
-            elif month >= 10 or month <= 5:
+                record["snow_n"] += 1
+                if value > 0:
+                    record["snow_days"] += 1
+            else:
                 record["snwd_sum"] += value
                 record["snwd_n"] += 1
                 if value > 0:
