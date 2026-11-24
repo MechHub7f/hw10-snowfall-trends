@@ -1,0 +1,16 @@
+# raw and processed data
+data/
+*.csv
+*.csv.gz
+*.parquet
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# misc
+.DS_Store
+*.log
