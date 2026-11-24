@@ -509,8 +509,8 @@ def build_page(results):
       Snow depth is a different measure. The chart shows snow-cover days; the
       table below also includes average snow depth. Snow depth was slightly
       lower recently, but cover days were basically flat. Either way, the change
-      is small and the uncertainty is large. That hints at a decline, but I
-      would not call it a trend.
+      is small and the uncertainty is large. That hints at a decline, but the
+      signal is too noisy to trust.
     </p>
   </section>
 
@@ -593,21 +593,21 @@ def build_page(results):
       average.
     </p>
     <p>
-      The short answer is still no: New England did not get less snow, at least
-      not in the seasonal totals. Snow depth may be inching down, but the data
-      are too weak to call it a loss.
+      I would tell my uncle he was wrong about the trend, at least for snowfall.
+      New England did not get less snow in the seasonal totals. Snow depth may
+      be inching down, but the data are too weak to make much of it.
     </p>
   </section>
 
   <section>
     <h2>Limits</h2>
     <p>
-      Station records are not perfect. Observers change, stations move, and snow
-      is hard to measure in wind. The network is not spread evenly across New
-      England, and the snow-depth record is shorter than the snowfall record. I
-      used long-record stations to limit those problems, but I cannot make them
-      disappear. This is a regional average, so one town can still have a very
-      different run of winters.
+      Station records are not perfect. Observers change over time and stations
+      get moved. Measuring snow in wind is always going to be rough. The network
+      is not spread evenly across New England, and the snow-depth record is
+      shorter than the snowfall record. I used long-record stations to limit
+      those problems, but I cannot make them disappear. This is a regional
+      average, so one town can still have a very different run of winters.
     </p>
   </section>
 

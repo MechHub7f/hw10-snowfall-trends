@@ -4,7 +4,7 @@
 
 Live report: https://mechhub7f.github.io/hw10-snowfall-trends/
 
-My uncle used to say winters were not what they used to be. He was born in
+My uncle used to say the winters of his childhood were snowier. He was born in
 1939 and died in 2024, so he saw a lot of New England winters. I used daily
 snowfall records from the Global Historical Climatology Network to compare the
 2000s and 2010s with 1940-1999.
