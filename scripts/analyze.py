@@ -53,12 +53,7 @@ def load_data():
         for row in csv.DictReader(source):
             sid = row["station"]
             season = int(row["season"])
-            meta[sid] = {
-                "state": row["state"],
-                "name": row["name"],
-                "lat": float(row["lat"]),
-                "lon": float(row["lon"]),
-            }
+            meta[sid] = {"state": row["state"]}
             record = {}
             for key in ("snow_total_in", "snow_days", "cover_days", "snwd_mean_in"):
                 record[key] = float(row[key]) if row[key] != "" else None

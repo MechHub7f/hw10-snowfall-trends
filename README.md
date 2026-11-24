@@ -62,5 +62,7 @@ are not committed to the repo.
   observation.
 - Stations need at least 35 usable winters in the old period and 15 in the
   recent period.
+- I only downloaded stations whose inventory showed SNOW data from at least
+  1945 to 2018, so the station could plausibly cover both periods.
 - Each station is compared with its own 1940-1999 average before the regional
   average is taken.

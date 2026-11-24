@@ -51,6 +51,7 @@ def read_candidates(stations):
             element = line[31:35]
             first = int(line[36:40])
             last = int(line[41:45])
+            # keep stations whose records could span both periods
             if element == "SNOW" and first <= 1945 and last >= 2018:
                 found.add(sid)
     return sorted(found)
@@ -80,7 +81,8 @@ def process_station(sid):
             element = row["ELEMENT"]
             if element not in ("SNOW", "SNWD"):
                 continue
-            if row["Q_FLAG"] in {"I", "O", "S", "W", "X", "Z"}:
+            # skip any value with a quality flag
+            if row["Q_FLAG"]:
                 continue
             try:
                 value = float(row["DATA_VALUE"])
